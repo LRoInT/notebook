@@ -1,0 +1,5 @@
+{
+    "name":"快速笔记本",
+    "save":"./.save",
+    "plugin":["./plugin"]
+}

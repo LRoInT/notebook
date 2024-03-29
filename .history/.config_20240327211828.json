@@ -1,0 +1,6 @@
+{
+    "name":"快速笔记本",
+    "size":"1000x600",
+    "save":"./.save",
+    "plugins":["./plugin"]
+}
