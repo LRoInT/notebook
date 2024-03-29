@@ -16,7 +16,7 @@ class NoteBookGUI:  # 窗口类
         self.widget_dict = {  # 控件字典
             "other_widget": []  # 其它控件
         }
-        self.config_input(config)  # 加载配置
+        self.config_check(config)  # 加载配置
         config = {"save": config[0], "plugins": config[1].split(",")}
         self.defaultconfig = config
         self.config = config.copy()
@@ -26,21 +26,6 @@ class NoteBookGUI:  # 窗口类
 
     def __repr__(self) -> str:
         return self.__str__()
-
-    def config_set(self):  # 设置配置
-        input_config = eg.multenterbox(
-            "请输入配置", "配置输入", ["记录保存位置", "加载插件文件"], values=[self.config["save"], ",".join(self.config["plugins"])])
-        self.config_input(input_config)
-
-    def config_input(self, config: list):
-        save, plugins = config
-        self.notebook.save_set(save)  # 设置保存
-        for p in plugins.split(","):  # 分割插件列表
-            if os.path.exists(p):  # 检查路径
-                self.notebook.plugin_set(p)
-            else:
-                if p != "":
-                    eg.msgbox(f"{p}插件不存在", title="配置错误")
 
     def widget_init(self):
         self.widget_dict["other_widget"] = [
@@ -74,6 +59,21 @@ class NoteBookGUI:  # 窗口类
 
         self.mainFrame.place(relx=0.15, rely=0.05, anchor="nw")
         self.root.mainloop()
+
+    def config_check(self, config: list):
+        save, plugins = config
+        self.notebook.save_set(save)  # 设置保存
+        for p in plugins.split(","):  # 分割插件列表
+            if os.path.exists(p):  # 检查路径
+                self.notebook.plugin_set(p)
+            else:
+                if p != "":
+                    eg.msgbox(f"{p}插件不存在", title="配置错误")
+
+    def config_set(self):  # 设置配置
+        input_config = eg.multenterbox(
+            "请输入配置", "配置输入", ["记录保存位置", "加载插件文件"], values=[self.config["save"], ",".join(self.config["plugins"])])
+        self.config_check(input_config)
 
     def run(self):
         self.windows_init()
