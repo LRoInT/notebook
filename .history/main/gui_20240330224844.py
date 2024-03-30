@@ -59,7 +59,7 @@ class NoteBookGUI:  # 窗口类
             label="插件", menu=self.plugins_menu)  # 插件菜单
         for p in self.notebook.plugins:  # 加载插件菜单
             self.plugins_menu.add_command(
-                label=p, command=self.notebook.plugin_back(p))
+                label=p, command=self.notebook.plugin_back())
         self.root.config(menu=self.option_menu)  # 设置菜单
 
     def windows_init(self):

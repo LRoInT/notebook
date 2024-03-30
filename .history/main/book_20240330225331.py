@@ -30,7 +30,7 @@ class NoteBook:
     def plugin_back(self,name):
         def back():
             if self.inuse!=None:
-                self.plugin_quit()
+                self.plugin_quit(self.inuse)
             if name==self.inuse:
                 self.inuse=None
                 return lambda:None

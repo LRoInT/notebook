@@ -4,6 +4,7 @@ import atexit
 import sys
 import re
 
+
 class NoteBook:
     def __init__(self):
         self.text = ""  # 文本
@@ -27,19 +28,10 @@ class NoteBook:
         func_inuse=self.inuse
         self.plugins[func_inuse][0].quit()
 
-    def plugin_back(self,name):
-        def back():
-            if self.inuse!=None:
-                self.plugin_quit()
-            if name==self.inuse:
-                self.inuse=None
-                return lambda:None
-            else:
-                self.inuse=name
-                self.plugins[name][0].main()
-                
-            
-        return back
+    def plugin_run(self,name):
+        if self.inuse!=None:
+            self.plugins[self.inuse][0]
+        return plugin_func
 
     def history_set(self, path):
         if not os.path.isdir(path):

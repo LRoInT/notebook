@@ -4,13 +4,13 @@ import atexit
 import sys
 import re
 
+
 class NoteBook:
     def __init__(self):
         self.text = ""  # 文本
         self.val_group = {}  # 变量组
         self.save = None
         self.plugins = {}
-        self.inuse=None
 
     def __str__(self):
         return f"NoteBook(save={self.save}, text={self.text}, val_group={self.val_group},plugins={self.plugins})"
@@ -22,24 +22,6 @@ class NoteBook:
         json.dump(self.val_group, open(os.path.join(
             self.save, "val_group.json"), "w"),  indent=4, ensure_ascii=False)
         open(os.path.join(self.save, "text.txt"), "w").write(self.text)
-    
-    def plugin_quit(self):
-        func_inuse=self.inuse
-        self.plugins[func_inuse][0].quit()
-
-    def plugin_back(self,name):
-        def back():
-            if self.inuse!=None:
-                self.plugin_quit()
-            if name==self.inuse:
-                self.inuse=None
-                return lambda:None
-            else:
-                self.inuse=name
-                self.plugins[name][0].main()
-                
-            
-        return back
 
     def history_set(self, path):
         if not os.path.isdir(path):
@@ -85,7 +67,7 @@ class NoteBook:
             for a in scope["__other__"]:
                 self.plugins[plugin_name].append(scope[a])
 
-    def plugin_set(self, plugin,run):
+    def plugin_set(self, plugin):
         if os.path.isfile(plugin):  # 当插件为单个文件时
             self._add_plugin(
                 open(plugin, encoding="utf-8").read(),run=run)
@@ -101,4 +83,4 @@ class NoteBook:
                     open(plugin+"\\"+plugin_file["mainFile"], encoding="utf-8").read(), name=name,run=run)
             else:
                 for dir in os.listdir(plugin):  # 文件夹内有多个插件时
-                    self.plugin_set(plugin+"\\"+dir,run=run)
+                    self.plugin_set(plugin+"\\"+dir)

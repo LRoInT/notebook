@@ -37,7 +37,7 @@ class NoteBookGUI:  # 窗口类
         self.notebook.save_set(save)  # 设置保存
         for p in plugins.split(","):  # 分割插件列表
             if os.path.exists(p):  # 检查路径
-                self.notebook.plugin_set(p,run=self)
+                self.notebook.plugin_set(p,scope={self})
             else:
                 if p != "":
                     eg.msgbox(f"{p}插件不存在", title="配置错误")
@@ -59,7 +59,7 @@ class NoteBookGUI:  # 窗口类
             label="插件", menu=self.plugins_menu)  # 插件菜单
         for p in self.notebook.plugins:  # 加载插件菜单
             self.plugins_menu.add_command(
-                label=p, command=self.notebook.plugin_back(p))
+                label=p, command=self.notebook.plugins[p][0].main)
         self.root.config(menu=self.option_menu)  # 设置菜单
 
     def windows_init(self):

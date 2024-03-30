@@ -4,13 +4,13 @@ import atexit
 import sys
 import re
 
+
 class NoteBook:
     def __init__(self):
         self.text = ""  # 文本
         self.val_group = {}  # 变量组
         self.save = None
         self.plugins = {}
-        self.inuse=None
 
     def __str__(self):
         return f"NoteBook(save={self.save}, text={self.text}, val_group={self.val_group},plugins={self.plugins})"
@@ -22,24 +22,6 @@ class NoteBook:
         json.dump(self.val_group, open(os.path.join(
             self.save, "val_group.json"), "w"),  indent=4, ensure_ascii=False)
         open(os.path.join(self.save, "text.txt"), "w").write(self.text)
-    
-    def plugin_quit(self):
-        func_inuse=self.inuse
-        self.plugins[func_inuse][0].quit()
-
-    def plugin_back(self,name):
-        def back():
-            if self.inuse!=None:
-                self.plugin_quit()
-            if name==self.inuse:
-                self.inuse=None
-                return lambda:None
-            else:
-                self.inuse=name
-                self.plugins[name][0].main()
-                
-            
-        return back
 
     def history_set(self, path):
         if not os.path.isdir(path):

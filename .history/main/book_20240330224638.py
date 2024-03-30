@@ -28,18 +28,9 @@ class NoteBook:
         self.plugins[func_inuse][0].quit()
 
     def plugin_back(self,name):
-        def back():
-            if self.inuse!=None:
-                self.plugin_quit()
-            if name==self.inuse:
-                self.inuse=None
-                return lambda:None
-            else:
-                self.inuse=name
-                self.plugins[name][0].main()
-                
-            
-        return back
+        if self.inuse!=None:
+            self.plugin_quit(self.inuse)
+        return self.plugins[name][0].main
 
     def history_set(self, path):
         if not os.path.isdir(path):
