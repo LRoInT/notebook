@@ -13,9 +13,12 @@ def rmdir(path):
 
 def clean(dir, remove=[".history","__pycache__"]):
     for file in os.listdir(dir):
-        if file in remove:
+        file = os.path.join(dir, file)
+        if file.split("\\")[-1] in remove:
             rmdir(file)
             print("remove "+file)
+        if os.path.isdir(file):
+            clean(file)
 
 
 if __name__ == "__main__":
