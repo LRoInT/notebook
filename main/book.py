@@ -80,12 +80,20 @@ class NoteBook:
         if name in self.plugins:
             return None
         self.plugins[plugin_name] = []
+        if plugin_name+"Run" not in scope:
+            raise AttributeError(f"The plugin file does not have '{plugin_name+'Run'}' Class")
         self.plugins[plugin_name].append(scope[plugin_name+"Run"](run))  # 插件类
+        try:
+            self.plugins[plugin_name][0].main
+        except:
+            raise RuntimeError
         if "__other__" in scope:  # 添加其他信息
             for a in scope["__other__"]:
                 self.plugins[plugin_name].append(scope[a])
 
     def plugin_set(self, plugin,run):
+        if not os.path.exists(plugin):
+            raise FileNotFoundError("Plugin does not exist")
         if os.path.isfile(plugin):  # 当插件为单个文件时
             self._add_plugin(
                 open(plugin, encoding="utf-8").read(),run=run)
