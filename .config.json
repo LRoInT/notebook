@@ -1,5 +1,5 @@
 {
-    "name":"快速笔记本",
+    "name":"多功能笔记本",
     "size":"1000x600",
     "save":"./.save",
     "plugins":["./.plugins"]

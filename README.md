@@ -2,19 +2,21 @@
 
 - 主程序: `program.py`
 
-- 库:`main.py`
+- 库:`proglib.py`
+
+- `.config.json`和`.page`:程序配置文件和页面文件夹
 
 > 本程序使用`tkinter`及`easygui`库作为界面程序. 设计中将使用插件设计, 通过加载一个默认文件夹和可选文件夹内的插件使用.
 
 ## 库
 
-- [`book.py`](./main/book.py): `Notebook`类及其他
+- [`book.py`](./proglib/book.py): `Notebook`类及其他
 
-- [`gui.py`](./main/gui.py): `NoteBookGUI`类,页面库
+- [`gui.py`](./proglib/gui.py): `NoteBookGUI`类,页面库
 
 ---
 
-### [Book 部分](./main/book.py)
+### [Book 部分](./proglib/book.py)
 
 #### `Notebook`类
 
@@ -40,7 +42,7 @@
 >
 > **此部分已废弃**
 >
-> **保存于[`main.form`](./main/form.py)**
+> **保存于 [`proglib.form`](./proglib/form.py)**
 >
 >`form_cell`类: 单元格类, 用于存储内容
 >
@@ -54,7 +56,7 @@
 >
 ---
 
-### [GUI 部分](./main/book.py)
+### [GUI 部分](./proglib/book.py)
 
 >![Windows](./gui.png)
 >
@@ -72,7 +74,7 @@
 >
 > `NoteBookGUI.option_menu`:菜单栏
 >
-> `NoteBookGUI.mainFrame`:主页面
+> `NoteBookGUI.proglibFrame`:主页面
 >
 >`NoteBookGUI.config_set`:设置配置
 >
@@ -84,6 +86,10 @@
 >
 >`NoteBookGUI.run`:运行 GUI 窗口
 
-#### [Page_Load](./main/gui/page_load.py)
+#### [Page_Load](./proglib/gui/page_load.py)
 
-加载页面模块
+页面加载模块, 见 [page_docs.md](./page_docs.md)
+
+### 插件部分
+
+插件为程序功能实现的方式,见 [plugin_docs.md](./plugin_docs.md)
