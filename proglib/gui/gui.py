@@ -7,15 +7,15 @@ from proglib import book
 
 class NoteBookGUI:  # 窗口类
 
-    def __init__(self, notebook: book.NoteBook, title, size, config):
+    def __init__(self, notebook: book.NoteBook, title="NoteBook", size="1000x800", config={"save": "", "plugins": []}):
         self.notebook = notebook
         self.root = tkinter.Tk()  # 设置 TK窗口
-        self.root.title(title)#设置标题
-        if type(size) == str:  # 设置窗口大小
-            self.root.geometry(size)
-        elif type(size) == list:
-            win_width, win_height = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
-            self.root.geometry(f"{int(size[0]*win_width)}x{int(size[1]*win_height)}")
+        self.root.title(title)
+        self.root.geometry(size)
+        self.widget_dict = {  # 控件字典
+            "other_widget": []  # 其它控件
+        }
+        config = {"save": config["save"], "plugins": config["plugins"]}
         self.defaultconfig = config
         self.config = config.copy()
 
@@ -28,7 +28,7 @@ class NoteBookGUI:  # 窗口类
     def error_trans(self, e):  # 错误翻译
         return e
 
-    def plugin2menu(self, name, p, menu):
+    def plugin2menu(self, menu, name, p, func):
         func = self.notebook.plugin_back_func(p)
         menu.add_command(  # 添加插件菜单选项
             label=name, command=func)
@@ -36,46 +36,36 @@ class NoteBookGUI:  # 窗口类
     def config_input(self, config: dict):
         save, plugins = config["save"], config["plugins"]
         self.notebook.save_set(save)  # 设置保存
-        self.plugin_load(plugins)
-
-    def plugin_load(self, paths):  # 加载插件
-        mp = self.notebook.plugin_more(paths)
-
-        for p in mp:  # 分割插件列表
+        plugins_l = []
+        for path in plugins:
+            plugins_l.extend(self.notebook.plugin_list(path))
+        sorted(plugins_l, key=lambda x: x[0])
+        for p in plugins_l:  # 分割插件列表
             try:
                 self.notebook.plugin_set(p[0], run=self)
-            except Exception as e:  # 返回错误
+            except Exception as e:
                 e = self.error_trans(e)
-                eg.msgbox(f"{p[0]}:{e}", title="Plugin Load Error")
+                eg.msgbox(f"{e}", title="Plugin Load Error")
 
     def load_widget(self, input_widget: Union[tuple | list]):
         widget, place = input_widget
         widget.place(relx=place[0], rely=place[1])
 
-    def gui_init(self):
+    """def widget_init(self):  # 控件初始化
         self.option_menu = Menu(self.root)  # 主菜单
         self.file_menu = Menu(self.option_menu)  # 文件菜单
         self.option_menu.add_cascade(menu=self.file_menu, label="文件")  # 添加子菜单
         self.plugins_menu = Menu(self.option_menu)  # 插件菜单
         self.option_menu.add_cascade(menu=self.plugins_menu, label="插件")
-        self.config_menu = Menu(self.option_menu)
-        self.option_menu.add_cascade(menu=self.config_menu, label="设置")
         self.root.config(menu=self.option_menu)  # 设置菜单
-        # ---
-        self.mainFrame = Frame(self.root,)  # 主界面
-        self.mainFrame.place(relx=0.05, rely=0.05,
-                             relwidth=0.9, relheight=0.8, anchor="nw")
+    """
 
-    def reload(self):  # 重载
-        self.root.destroy()
-        self.notebook.reload()
-        title = self.defaultconfig["title"]
-        size = self.defaultconfig["size"]
-        self.__init__(self.notebook, title, size, self.defaultconfig)
+    def windows_init(self):  # 窗口布局初始化
+        self.mainFrame = Frame(self.root)  # 主界面
+        self.notebook.lib["mainlib"].init.gui_init(self)
 
-    def run(self, func=None):
-        self.gui_init()
+    def run(self):
+        # self.widget_init()  # 控件初始化
+        self.windows_init()  # 窗口初始化
         self.config_input(self.config)
-        if func!=None:
-            func()
-        self.root.mainloop()  # 进入主循环
+        self.root.mainloop()

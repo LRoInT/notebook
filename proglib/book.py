@@ -34,10 +34,12 @@ class NoteBook:  # 程序核心类
     def __repr__(self):
         return self.__str__()
 
-    def output_save(self):
+    def output_save(self, path=None):
+        if path is None:
+            path = self.save
         json.dump(self.val_group, open(os.path.join(
-            self.save, "val_group.json"), "w"),  indent=4, ensure_ascii=False)
-        open(os.path.join(self.save, "text.txt"), "w").write(self.text)
+            path, "val_group.json"), "w"),  indent=4, ensure_ascii=False)
+        open(os.path.join(path, "text.txt"), "w").write(self.text)
 
     def history_set(self, path):
         if not os.path.isdir(path):
@@ -45,6 +47,7 @@ class NoteBook:  # 程序核心类
         self.text = open(os.path.join(path, "text.txt")).read()
         self.val_group = json.load(
             open(os.path.join(path, "val_group.json"), encoding="utf-8"))
+        self.save = path
 
     def save_set(self, path):  # 保存设置
         if type(path) == list:  # 当输入多个路径时
@@ -98,20 +101,20 @@ class NoteBook:  # 程序核心类
     def _add_plugin(self, path, name=None, run=None):
         if run is None:
             run = self
-        scope = {}  # 设置作用域
-        exec(open(path, encoding="utf-8").read(), scope)  # 初始化插件
+        scope = {"sys": sys, "os": os}  # 设置作用域
+        file = os.path.basename(path).split('.')[0]
+        # 加载代码
+        lc = f"sys.path.append('{os.path.dirname(path)}');import {file};p={file}.{name+'Run'}"
+        exec(lc, scope)  # 初始化插件
         scope.pop('__builtins__')
         if name == None:  # 设置插件名称
             name = scope["name"]
-
-        if name in self.plugins:
-            return None
         plugin_l = {}
         try:
-            p = scope[name+"Run"](run)
+            p = scope["p"](run)
         except Exception as e:
             raise RuntimeError(
-                f"Plugin({path}) {e}")
+                f"Plugin({path}):{e}")
         if "__other__" in scope:  # 添加其他信息
             for a in scope["__other__"]:
                 plugin_l[a] = scope[a]

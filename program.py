@@ -1,10 +1,8 @@
 import json
-import tkinter as tk
-from tkinter import *
-import easygui as eg
-
 from proglib import book,gui
 
+def gui_run():
+    notebook.lib["mainlib"].NBWelcome(bookgui)
 
 if __name__ == "__main__":
     dconfig = json.load(open("./.config.json", encoding="utf-8"))  # 加载默认配置
@@ -12,5 +10,5 @@ if __name__ == "__main__":
     notebook = book.NoteBook()
     bookgui = gui.NoteBookGUI(
         notebook, title=dconfig["name"], size=dconfig["size"], config=dconfig)
-    bookgui.run()
+    bookgui.run(gui_run)
     
