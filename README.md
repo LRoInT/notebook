@@ -24,11 +24,11 @@
 >
 > `NoteBook.text`:笔记本文字内容,可作为插件的作用域
 >
-> `NoteBook.val_group`:笔记本的变量组,可作为插件的作用域
+> `NoteBook.var_group`:笔记本的变量组,可作为插件的作用域
 >
 >`NoteBook.save`:保存路径
 >
->`NoteBook.plugins`:笔记本插件字典,格式为`PluginName:[PluginClass,...]`
+>`NoteBook.plugins`:笔记本插件字典,格式为`PluginName:NBPlugin`
 >
 >`NoteBook.output_save`:笔记本内容输出函数
 >
@@ -38,23 +38,51 @@
 >
 >`NoteBook.plugin_set`:插件设置
 
-#### Form
+### `NBPlugin`类
+
+插件类,用于存储插件
+
+### `NBText`类
+
+> 笔记本文字类,用于存储笔记本文字内容
 >
-> **此部分已废弃**
+> `NBText.text`:笔记本文字内容
 >
-> **保存于 [`proglib.form`](./proglib/form.py)**
+> `NBText.save`:保存/输出 函数
 >
->`form_cell`类: 单元格类, 用于存储内容
+> `NBText.input`: 输入函数
 >
-> - `form_cell.data`: 单元格数据
-> - `form_cell.style`: 单元格样式
-> - `form_cell.type`: 单元格类型
+> `NBText.input`:输入函数
+
+### `NBVar`类
+
+> 笔记本变量类,用于存储笔记本变量
 >
->`form2d`类: 二维表类, 用于存储表
+> `NBVar.name`: 变量值
 >
-> - `form2d.form`类:一个 `np.array` 数组,数组中的每一项都应为一个`form_cell`类
+> `NBVar.value`: 变量值
 >
----
+> `NBVar.input`: 输入函数
+
+### `NBVarGruop` 类
+
+> 笔记本变量组类,用于存储笔记本变量组,变量组为一个字典,每个 键值对为一个`NBVarGroup`类
+>
+> `NBVarGruop.vars`: 变量组
+>
+> `NBVarGruop.load_json`: 加载JSON文件
+>
+> `NBVarGruop.dict_output`: 输出为 字典
+>
+> `NBVarGruop.add`: 添加变量
+
+## `Var2json` 模块
+
+> 用于将变量组转换为JSON格式
+>
+> `var2json.NBJsonDecoder`: 解码器
+>
+> `var2json.NBJsonEncoder`: 编码器
 
 ### [GUI 部分](./proglib/book.py)
 

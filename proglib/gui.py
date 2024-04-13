@@ -1,3 +1,4 @@
+import os
 import tkinter
 from tkinter import *
 from typing import Union
@@ -6,16 +7,16 @@ from proglib import book
 
 
 class NoteBookGUI:  # 窗口类
-
     def __init__(self, notebook: book.NoteBook, title, size, config):
         self.notebook = notebook
         self.root = tkinter.Tk()  # 设置 TK窗口
-        self.root.title(title)#设置标题
+        self.root.title(title)  # 设置标题
         if type(size) == str:  # 设置窗口大小
             self.root.geometry(size)
         elif type(size) == list:
             win_width, win_height = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
-            self.root.geometry(f"{int(size[0]*win_width)}x{int(size[1]*win_height)}")
+            self.root.geometry(
+                f"{int(size[0]*win_width)}x{int(size[1]*win_height)}")
         self.defaultconfig = config
         self.config = config.copy()
 
@@ -44,9 +45,8 @@ class NoteBookGUI:  # 窗口类
         for p in mp:  # 分割插件列表
             try:
                 self.notebook.plugin_set(p[0], run=self)
-            except Exception as e:  # 返回错误
-                e = self.error_trans(e)
-                eg.msgbox(f"{p[0]}:{e}", title="Plugin Load Error")
+            except:  # 返回错误
+                eg.exceptionbox()
 
     def load_widget(self, input_widget: Union[tuple | list]):
         widget, place = input_widget
@@ -63,19 +63,23 @@ class NoteBookGUI:  # 窗口类
         self.root.config(menu=self.option_menu)  # 设置菜单
         # ---
         self.mainFrame = Frame(self.root,)  # 主界面
-        self.mainFrame.place(relx=0.05, rely=0.05,
-                             relwidth=0.9, relheight=0.8, anchor="nw")
+        self.mainFrame.place(relx=0.025, rely=0.025,
+                             relwidth=0.9, relheight=0.9, anchor="nw")
 
     def reload(self):  # 重载
-        self.root.destroy()
-        self.notebook.reload()
+        self.root.destroy()  # 关闭窗口
+        self.notebook.reload()  # 重载 notebook
         title = self.defaultconfig["title"]
         size = self.defaultconfig["size"]
         self.__init__(self.notebook, title, size, self.defaultconfig)
+        self.run(self.func)
 
     def run(self, func=None):
         self.gui_init()
         self.config_input(self.config)
-        if func!=None:
+        if func != None:
+            self.func = func
             func()
+        else:
+            self.func = lambda: None
         self.root.mainloop()  # 进入主循环
