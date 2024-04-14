@@ -23,26 +23,6 @@ class file_writer:
             f.write(text)
 
 
-class LRUcache:  # 双向链表LRU 缓存
-    def __init__(self, size=8):
-        self.data = []
-        self.size = size
-
-    def __str__(self):
-        return f"LRUcache:(size={self.size}, data={self.data})"
-
-    def __repr__(self):
-        return self.__str__()
-
-    def pop(self):  # 获取
-        self.data.pop()
-
-    def push(self, item):  # 添加
-        self.data.append(item)
-        if len(self.data) > self.size:
-            self.data.pop(0)
-
-
 class NBText:  # 文本类
     def __init__(self, text=None, path=("", ""), size=16):
         self.root, self.path = path  # 文件路径
@@ -54,8 +34,6 @@ class NBText:  # 文本类
             self.text = text
         else:
             self.text = self.file.text
-        self.history = LRUcache(size)  # 历史记录
-        self.history.push(self.text)
 
     def __str__(self):
         return f"NBText:(path={self.path}, text={self.text})"
@@ -63,12 +41,8 @@ class NBText:  # 文本类
     def __repr__(self):
         return self.__str__()
 
-    def cancel(self):
-        return self.history.pop()
-
     def input(self, text):
         self.text = text
-        self.history.push(self.text)
 
     def save(self, path=None):  # 保存
         if path is None:
@@ -80,47 +54,44 @@ class NBText:  # 文本类
 class NBVar:  # 变量类
     def __init__(self, name, value, vtype=None):
         self.name = name  # 变量名
-        # 自动处理
-        self.eval = eval
-        self.safe_eval = ast.literal_eval
+        self.value = value
         if vtype is None:
-            self.type = self.eval
-            try:
-                self.value = self.eval(value, {})
-            except:
-                self.value = value
+            self.type = type(value)
         self.type = vtype  # 类型
 
     def __str__(self):
-        return f"NBVar:(name={self.name}, value={self.value}, type={(type(self.type) if self.type!=self.eval and self.type!=self.safe_eval else 'auto')})"
+        return f"NBVar:(name={self.name}, value={self.value}, type={(self.type)})"
 
     def __repr__(self):
         return self.__str__()
 
-    def input(self, value, vtype=None):
-        if vtype is None:
-            self.type = self.safe_eval
-            try:
-                self.value = self.safe_eval(value)
-            except:
-                self.value = value
-        self.type = vtype  # 类型
+    def input(self, value, vtype=False):
+        if vtype:
+            self.value = value
+            self.type = type(value)
+        else:
+            self.value = self.type(value)
 
 
 class NBVarGroup:  # 变量组类
-    def __init__(self, vars=None, path=("", ""), j2o={}):
+    def __init__(self, vars=None, path=("", ""), o2j={}, j2o={}):
         self.root, self.path = path
         self.path = os.path.join(self.root, self.path)
+        self.o2j = o2j
         self.j2o = j2o
         if vars is not None:
             self.vars = vars
+            if self.path != "":
+                with open(self.path, "w",encoding="utf-8") as f:
+                    json.dump(self.vars, f,
+                              ensure_ascii=False, indent=4, default=NBJsonEncoder(o2j))
         else:
             self.vars = {}
             if self.path != "":
                 self.load_json(self.path, self.j2o)
 
     def __str__(self):
-        return f"NBVar_Group:(path={self.path}, var_group={self.vars})"
+        return f"NBVar_Group:(path={self.path}, vars={self.vars})"
 
     def __repr__(self):
         return self.__str__()
@@ -161,13 +132,25 @@ class NBPlugin:  # 插件类
         self._path = path
 
     def __str__(self):
-        return f"NBPlugin:(plugin={self.pclass}, info={self.info},hash=)"
+        return f"NBPlugin:(plugin={self.pclass}, info={self.info})"
 
     def __repr__(self):
         return self.__str__()
 
 
 note_config_file = "note.json"
+
+config_file_dict = {  # 空白配置文件字典
+    "text": {},
+    "var": {}
+}
+
+obj2json = {  # 对象转JSON
+    NBText: lambda x: x.text,
+    NBVar: lambda x: x.value,
+}
+json2obj = {  # JSON转对象
+}
 
 
 class NoteBook:  # 程序核心类
@@ -178,8 +161,8 @@ class NoteBook:  # 程序核心类
         self.plugins = {}  # 查检字典
         self.lib = {}  # 支持库
         self.inuse = None  # 运行插件
-        self.obj2json = {}  # 变量转JSON
-        self.json2obj = {}  # JSON转变量
+        self.obj2json = obj2json  # 变量转JSON
+        self.json2obj = json2obj  # JSON转变量
 
     def __str__(self):
         return f"NoteBook(text={self.text}, var_group={self.var_group}, plugins={self.plugins})"
@@ -198,12 +181,12 @@ class NoteBook:  # 程序核心类
             "var": {v: os.path.relpath(self.var_group[v].path, self.var_group[v].root) for v in self.var_group}
         }
         json.dump(json_file, open(os.path.join(path, note_config_file),  # 写入
-                  "w"), ensure_ascii=False, indent=4)
+                  "w",encoding="utf-8"), ensure_ascii=False, indent=4)
         for t in list(self.text.values()):  # 保存文本
             t.save(os.path.join(path, os.path.relpath(t.path, t.root)))
         for v in zip([n.dict_output() for n in list(self.var_group.values())], [os.path.relpath(v.path, v.root) for v in list(self.var_group.values())]):  # 保存变量组
             json.dump(v[0], open(os.path.join(path, v[1]),
-                                 "w"), default=NBJsonEncoder(self.obj2json), ensure_ascii=False, indent=4)
+                                 "w",encoding="utf-8"), default=NBJsonEncoder(self.obj2json), ensure_ascii=False, indent=4)
 
     def output_save(self, path=None, type=None):
         if path is None:
@@ -235,11 +218,11 @@ class NoteBook:  # 程序核心类
             self.var_group = {}
 
     def _dir2note(self, path):  # 加载目录到程序
-        try:
-            c = json.load(
-                open(os.path.join(path, note_config_file), encoding="utf-8"))
-        except Exception as e:
-            raise e
+        if note_config_file not in os.listdir(path):  # 文件夹内没有配置文件时
+            json.dump(config_file_dict, open(os.path.join(
+                path, note_config_file),encoding="utf-8"), ensure_ascii=False, indent=4)
+        c = json.load(
+            open(os.path.join(path, note_config_file), encoding="utf-8"))
         self.text = {}
         self.var_group = {}
         if "text" in c:  # 加载文本
@@ -267,11 +250,21 @@ class NoteBook:  # 程序核心类
                 pass
         atexit.register(self.output_save)  # 开启自动保存
 
+    def new_note(self, path):  # 新建笔记
+        self.save[0] = path
+        self.save[1] = "dir"
+        self._new_note_dir(path)
+
+    def _new_note_dir(self, path):  # 新建笔记目录
+        os.mkdir(path)
+        with open(os.path.join(path, note_config_file), "w",encoding="utf-8") as f:  # 创建配置文件
+            json.dump(config_file_dict, f, ensure_ascii=False, indent=4)
+
     def text_add(self, name, **kwargs):  # 添加文本
         self.text[name] = NBText(**kwargs)
 
     def var_group_add(self, name, **kwargs):  # 添加变量
-        self.var_group[name] = NBVarGroup(**kwargs)
+        self.var_group[name] = NBVarGroup(**kwargs,o2j=self.obj2json,j2o=self.json2obj)
 
     def plugin_quit(self):  # 退出当前运行插件
         self.inuse.quit() if self.inuse is not None else None
@@ -296,7 +289,7 @@ class NoteBook:  # 程序核心类
         if key is None:
             key = name
         # 加载代码
-        lc = f"sys.path.append('{os.path.dirname(path)}');import {name}"
+        lc = f"sys.path.append(r'{os.path.dirname(path)}');import {name}"
         exec(lc, scope)
         lib = scope[name]
         lib._path = path
@@ -308,7 +301,7 @@ class NoteBook:  # 程序核心类
         scope = {"sys": sys, "os": os}  # 设置作用域
         file = os.path.basename(path).split('.')[0]
         # 加载代码
-        lc = f"sys.path.append('{os.path.dirname(path)}');import {file};p={file}.{name+'Run'}"
+        lc = f"sys.path.append(r'{os.path.dirname(path)}');import {file};p={file}.{name+'Run'}"
         exec(lc, scope)  # 初始化插件
         scope.pop('__builtins__')
         if name == None:  # 设置插件名称
@@ -335,7 +328,7 @@ class NoteBook:  # 程序核心类
                     return [None]
             if "type" in t:
                 if t["type"] == "lib":  # 插件类型为库时
-                    t = 0
+                    t = -float("inf")  # 总是为第一
                 elif t["type"] == "plugin":  # 插件类型为功能型插件时
                     t = t["rank"] if "rank" in t else 1
                 else:
@@ -347,7 +340,9 @@ class NoteBook:  # 程序核心类
         output = []
         for dir in ld:  # 文件夹内有多个插件时
             output.extend(self.plugin_list(os.path.join(path, dir)))
+        # 当 `unuse` 为 `True` 时, 返回 `None`
         output = [x for x in output if x != None]
+        output.sort(key=lambda x: x[1])  # 通过 `rank` 排序
         return output
 
     def plugin_loaded(self):  # 已加载的插件
@@ -392,7 +387,6 @@ class NoteBook:  # 程序核心类
         for path in paths:
             plugins_l.extend(self.plugin_list(path))  # 获取要加载的插件列表
         mp = list(set(plugins_l)-set(self.plugin_loaded()))
-        mp.sort(key=lambda x: x[1])
         return mp
 
     def reload(self):  # 重载

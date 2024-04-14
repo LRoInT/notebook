@@ -1,5 +1,6 @@
 import os
 import easygui
+import atexit
 
 
 class file_manager:
@@ -8,13 +9,11 @@ class file_manager:
         self.nb = nb.notebook
 
     def _load(self, path):
-        self.nb.plugin_quit()
         try:
             self.nb.note_set(path)
         except Exception as e:
             easygui.msgbox(f"错误:{e}", title="加载错误")
-        self.nb.lib["mainlib"].NBWelcome(self.gui)
-        self.gui.root.update()
+        self.nb.plugin_quit()
 
     def load_dir(self):
         path = easygui.diropenbox(title="选择文件夹")
@@ -28,6 +27,7 @@ class file_manager:
                     self._load(path)
             else:
                 self._load(path)
+            return 1
         else:
             easygui.msgbox("文件不存在", "错误")
 
@@ -66,7 +66,14 @@ class file_manager:
             easygui.msgbox(f"错误:{e}", title="保存错误")
 
     def save(self):
-        if self.nb.save is not None:
+        if self.nb.save[0] is not None and self.nb.save[0] != "./.nb_temp":
             self.nb.output_save()
         else:
-            self.save_as()
+            self.save_as_dir()
+
+    def new(self):
+        new = easygui.enterbox("输入新文件夹路径")
+        if new is None:
+            return 0
+        self.nb.new_note(new)
+        self._load(new)

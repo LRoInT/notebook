@@ -36,5 +36,5 @@ def NBJsonEncoder(obj_convert):  # JSON编码器
         if type(obj) in obj_convert:
             return obj_convert[type(obj)](obj)
         else:
-            json.JSONEncoder.encode(obj)
+            return obj
     return encode
