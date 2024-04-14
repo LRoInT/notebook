@@ -14,7 +14,6 @@ def rmdir(path):
     os.rmdir(path)
 
 
-
 def show():
     show_text = []
     show_text.append("NoteBook:")

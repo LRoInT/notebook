@@ -82,7 +82,7 @@ class NBVarGroup:  # 变量组类
         if vars is not None:
             self.vars = vars
             if self.path != "":
-                with open(self.path, "w",encoding="utf-8") as f:
+                with open(self.path, "w", encoding="utf-8") as f:
                     json.dump(self.vars, f,
                               ensure_ascii=False, indent=4, default=NBJsonEncoder(o2j))
         else:
@@ -170,9 +170,6 @@ class NoteBook:  # 程序核心类
     def __repr__(self):
         return self.__str__()
 
-    def _save2file(self, path):  # 保存到文件
-        pass
-
     def _save2dir(self, path):  # 保存到目录
         if not os.path.exists(path):  # 创建目录
             os.makedirs(path)
@@ -181,12 +178,12 @@ class NoteBook:  # 程序核心类
             "var": {v: os.path.relpath(self.var_group[v].path, self.var_group[v].root) for v in self.var_group}
         }
         json.dump(json_file, open(os.path.join(path, note_config_file),  # 写入
-                  "w",encoding="utf-8"), ensure_ascii=False, indent=4)
+                  "w", encoding="utf-8"), ensure_ascii=False, indent=4)
         for t in list(self.text.values()):  # 保存文本
             t.save(os.path.join(path, os.path.relpath(t.path, t.root)))
         for v in zip([n.dict_output() for n in list(self.var_group.values())], [os.path.relpath(v.path, v.root) for v in list(self.var_group.values())]):  # 保存变量组
             json.dump(v[0], open(os.path.join(path, v[1]),
-                                 "w",encoding="utf-8"), default=NBJsonEncoder(self.obj2json), ensure_ascii=False, indent=4)
+                                 "w", encoding="utf-8"), default=NBJsonEncoder(self.obj2json), ensure_ascii=False, indent=4)
 
     def output_save(self, path=None, type=None):
         if path is None:
@@ -200,9 +197,9 @@ class NoteBook:  # 程序核心类
         if stype == "dir":  # 保存方式为目录时
             self.save[1] = "dir"
             self._save2dir(spath)
-        elif stype == "file":  # 保存方式为文件时
+        """elif stype == "file":  # 保存方式为文件时
             self.save[1] = "file"
-            self._save2file(spath)
+            self._save2file(spath)"""
 
     def _file2note(self, path):  # 加载文件到程序
         c = json.load(open(path, encoding="utf-8"))
@@ -220,7 +217,7 @@ class NoteBook:  # 程序核心类
     def _dir2note(self, path):  # 加载目录到程序
         if note_config_file not in os.listdir(path):  # 文件夹内没有配置文件时
             json.dump(config_file_dict, open(os.path.join(
-                path, note_config_file),encoding="utf-8"), ensure_ascii=False, indent=4)
+                path, note_config_file), encoding="utf-8"), ensure_ascii=False, indent=4)
         c = json.load(
             open(os.path.join(path, note_config_file), encoding="utf-8"))
         self.text = {}
@@ -257,14 +254,15 @@ class NoteBook:  # 程序核心类
 
     def _new_note_dir(self, path):  # 新建笔记目录
         os.mkdir(path)
-        with open(os.path.join(path, note_config_file), "w",encoding="utf-8") as f:  # 创建配置文件
+        with open(os.path.join(path, note_config_file), "w", encoding="utf-8") as f:  # 创建配置文件
             json.dump(config_file_dict, f, ensure_ascii=False, indent=4)
 
     def text_add(self, name, **kwargs):  # 添加文本
         self.text[name] = NBText(**kwargs)
 
     def var_group_add(self, name, **kwargs):  # 添加变量
-        self.var_group[name] = NBVarGroup(**kwargs,o2j=self.obj2json,j2o=self.json2obj)
+        self.var_group[name] = NBVarGroup(
+            **kwargs, o2j=self.obj2json, j2o=self.json2obj)
 
     def plugin_quit(self):  # 退出当前运行插件
         self.inuse.quit() if self.inuse is not None else None
