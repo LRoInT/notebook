@@ -24,5 +24,7 @@ def clean(dir, remove=[".history","__pycache__"]):
 if __name__ == "__main__":
     if len(sys.argv) > 2:
         clean(sys.argv[1],sys.argv[2:])
-    else:
+    elif len(sys.argv) > 1:
         clean(sys.argv[1])
+    else:
+        clean(".")
