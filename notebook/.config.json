@@ -1,7 +1,0 @@
-{
-    "name":"多功能笔记本",
-    "title":"多功能笔记本",
-    "size":[0.9,0.8],
-    "save":"./.save",
-    "plugins":["./.plugins"]
-}
