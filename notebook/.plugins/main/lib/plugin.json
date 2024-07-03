@@ -1,0 +1,5 @@
+{
+    "name": "mainlib",
+    "mainFile": "mainlib.py",
+    "type": "lib"
+}
