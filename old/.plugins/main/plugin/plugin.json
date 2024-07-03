@@ -1,0 +1,6 @@
+{
+    "name": "mainplugin",
+    "mainFile": "mainplugin.py",
+    "type": "plugin",
+    "rank":2
+}

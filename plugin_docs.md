@@ -14,14 +14,27 @@
 {
     "name": "ExamplePlugin",
     "mainFile":"main.py",
-    "type": "..."
+    "type":"plugin",
+    "unuse":...,
+    "rank":1
     ...
 }
 ```
 
 - `name`:插件名
 - `mainFile`:插件主文件
-- `type`:插件类型
+- `type`:插件类型,当为功能型插件时可选
+- `unuse`:插件是否被使用,当为`true`时,插件不会被加载
+- `rank`:插件优先级,当`type`为`lib`时,此项无效
+- ...:其他信息
+
+## 插件类型
+
+> 插件类型分为两种
+>
+> *`"type":"plugin"`*:功能型插件
+>
+> *`"type":"pluginlib"`*:支持库
 
 ## 功能型插件
 
